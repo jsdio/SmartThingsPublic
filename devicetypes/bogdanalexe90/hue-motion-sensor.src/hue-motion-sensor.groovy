@@ -16,7 +16,7 @@
 import physicalgraph.zigbee.zcl.DataType
  
 metadata {
-    definition (name: "Hue Motion Sensor", namespace: "bogdanalexe90", author: "Bogdan Alexe", runLocally: true, vid: "generic-motion", ocfDeviceType: "x.com.st.d.sensor.motion") {
+    definition (name: "Hue Motion Sensor", namespace: "bogdanalexe90", author: "Bogdan Alexe", runLocally: true, vid: "generic-motion-5", ocfDeviceType: "x.com.st.d.sensor.motion") {
 		capability "Motion Sensor"
 		capability "Configuration"
 		capability "Battery"
@@ -286,8 +286,8 @@ def configure() {
     //    - temperature - minReportTime 10 seconds, maxReportTime 5 min
 	//    - battery - minReport 120 min, maxReportTime 120 min 
     def configCmds = [
-	    zigbee.configureReporting(MOTION_ALERT_CLUSTER, MOTION_ALERT_VALUE, DataType.BITMAP8, 1, 300, null),
-	    zigbee.configureReporting(ILLUMINANCE_MEASUREMENT_CLUSTER, ILLUMINANCE_MEASURE_VALUE, DataType.UINT16, 5, 300, 1000),
+	    zigbee.configureReporting(MOTION_ALERT_CLUSTER, MOTION_ALERT_VALUE, DataType.BITMAP8, 1, 60, null),
+	    zigbee.configureReporting(ILLUMINANCE_MEASUREMENT_CLUSTER, ILLUMINANCE_MEASURE_VALUE, DataType.UINT16, 5, 60, 1000),
         zigbee.temperatureConfig(10, 300, 5),
         zigbee.batteryConfig(7200, 7200, 0)
     ]
