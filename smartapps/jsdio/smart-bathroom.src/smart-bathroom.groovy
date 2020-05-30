@@ -73,9 +73,8 @@ def updated() {
 
 def initialize() {
     // initialize counter
-	if (settings.noMotionLimit != null) settings.noMotionLimit = 30
+	//if (settings.noMotionLimit != null) settings.noMotionLimit = 30
     
-    state.lights = settings.lightsInit
     
     log.debug(settings.sensorShower)
     log.debug(settings.sensorOutside)
