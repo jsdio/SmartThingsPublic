@@ -49,7 +49,7 @@ metadata {
 	}
 
 	preferences {
-		input "tempOffset", "number", title: "Temperature Offset", description: "Adjust temperature by this many degrees", range: "*..*", displayDuringSetup: false
+		input "tempOffset", "number", title: "Temperature Offset", description: "Adjust temperature by this many degrees", range: "-100..100", displayDuringSetup: false
         input "interval", "number", title: "Report Interval", description: "How often the device should report in minutes", range: "1..120", defaultValue: 10, displayDuringSetup: false
         input "resetMinMax", "bool", title: "Reset Humidity min and max", required: false, displayDuringSetup: false
       }
@@ -258,9 +258,7 @@ private Map getTemperatureResult(value) {
 	def linkText = getLinkText(device)
         
 	if (tempOffset) {
-		def offset = tempOffset as int
-		def v = value as int
-		value = v + offset        
+		value = new BigDecimal((value as float) + (tempOffset as float)).setScale(1, BigDecimal.ROUND_HALF_UP)
 	}
 	def descriptionText = "${linkText} is ${value}°${temperatureScale}"
 	return [

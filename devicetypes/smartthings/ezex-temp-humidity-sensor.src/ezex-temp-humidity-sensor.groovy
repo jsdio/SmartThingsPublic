@@ -28,7 +28,7 @@ metadata {
 
 
     preferences {
-        input "tempOffset", "number", title: "Temperature offset", description: "Select how many degrees to adjust the temperature.", range: "*..*", displayDuringSetup: false
+        input "tempOffset", "number", title: "Temperature offset", description: "Select how many degrees to adjust the temperature.", range: "-100..100", displayDuringSetup: false
         input "humidityOffset", "number", title: "Humidity offset", description: "Enter a percentage to adjust the humidity.", range: "*..*", displayDuringSetup: false
     }
 
@@ -76,7 +76,7 @@ def parse(String description) {
         }
     } else if (map.name == "temperature") {
         if (tempOffset) {
-            map.value = (int) map.value + (int) tempOffset
+            map.value = new BigDecimal((map.value as float) + (tempOffset as float)).setScale(1, BigDecimal.ROUND_HALF_UP)
         }
         map.descriptionText = temperatureScale == 'C' ? '{{ device.displayName }} was {{ value }}°C' : '{{ device.displayName }} was {{ value }}°F'
         map.translatable = true

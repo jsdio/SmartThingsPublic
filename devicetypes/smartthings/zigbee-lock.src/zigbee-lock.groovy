@@ -45,6 +45,9 @@ metadata {
 		fingerprint profileId: "0104", inClusters: "0000, 0003, 0101", manufacturer:"Kwikset", model:"Smartcode", deviceJoinName: "Kwikset Door Lock" //Kwikset Smartcode Lock
 		fingerprint profileId: "0104", inClusters: "0000, 0001, 0003, 0009, 0020, 0101, 0B05, FC00", outClusters: "000A, 0019", manufacturer: "Schlage", model: "BE468", deviceJoinName: "Schlage Door Lock" //Schlage Connect Smart Deadbolt
 		fingerprint profileId: "0104", inClusters: "0000,0001,0003,0009,000A,0101,0020,0B05", outClusters: "000A,0019", manufacturer: "Yale", model: "YDD-D4F0 TSDB", deviceJoinName: "Lockwood Door Lock" //Lockwood Smart Lock
+		fingerprint profileId: "0104", inClusters: "0000,0001,0003,0004,0005,0009,000A,0020,0101", outClusters: "000A,0019", manufacturer: "ASSA ABLOY iRevo", model: "iZBModule01", deviceJoinName: "Yale Door Lock" //Yale Locks (YDF30/40, YMF30/40) with old firmware (v.9.0)
+		fingerprint profileId: "0104", inClusters: "0000,0001,0003,0004,0005,0009,000A,0020,0101", outClusters: "000A,0019", manufacturer: "ASSA ABLOY iRevo", model: "c700000202", deviceJoinName: "Yale Door Lock" //Yale Fingerprint Lock YDF40
+		fingerprint profileId: "0104", inClusters: "0000,0001,0003,0004,0005,0009,000A,0020,0101", outClusters: "000A,0019", manufacturer: "ASSA ABLOY iRevo", model: "0700000001", deviceJoinName: "Yale Door Lock" //Yale Fingerprint Lock YMF40
 	}
 
 	tiles(scale: 2) {
@@ -493,6 +496,15 @@ private def parseAttributeResponse(String description) {
 			responseMap.value = "unknown"
 			responseMap.descriptionText = "Unknown state"
 		}
+		if (responseMap.value) {
+			/*  delay this event for a second in the hopes that we get the operation event (which has more info).
+				If we don't get one, then it's okay to send. If we send the event with more info first, the event
+				with less info will be marked as not displayed
+			 */
+			log.debug "Lock attribute report received: ${responseMap.value}. Delaying event."
+			runIn(1, "delayLockEvent", [data : [map : responseMap]])
+			return [:]
+		}
 	} else if (clusterInt == CLUSTER_DOORLOCK && attrInt == DOORLOCK_ATTR_MIN_PIN_LENGTH && descMap.value) {
 		def minCodeLength = Integer.parseInt(descMap.value, 16)
 		responseMap = [name: "minCodeLength", value: minCodeLength, descriptionText: "Minimum PIN length is ${minCodeLength}", displayed: false]
@@ -515,6 +527,11 @@ private def parseAttributeResponse(String description) {
 	result << createEvent(responseMap)
 	log.info "ZigBee DTH - parseAttributeResponse() returning with result:- $result"
 	return result
+}
+
+def delayLockEvent(data) {
+	log.debug "Sending cached lock operation: ${data.map}"
+	sendEvent(data.map)
 }
 
 /**
